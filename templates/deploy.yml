@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: roboshop-{{ .Values.app_name }}
+  labels:
+    app: roboshop-{{ .Values.app_name }}
+spec:
+  #replicas: 1
+  selector:
+    matchLabels:
+      app: roboshop-{{ .Values.app_name }}
+  template:
+    metadata:
+      labels:
+        app: roboshop-{{ .Values.app_name }}
+      {{- $prometheusEnabled := true -}}
+      {{- if and .Values.prometheus (kindIs "bool" .Values.prometheus.enabled) -}}
+      {{- $prometheusEnabled = .Values.prometheus.enabled -}}
+      {{- end -}}
+      {{- if $prometheusEnabled }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ if and .Values.prometheus.exporter .Values.prometheus.exporter.enabled }}{{ .Values.prometheus.exporter.port | default 9113 }}{{ else }}{{ .Values.app_port }}{{ end }}"
+        prometheus.io/path: {{ .Values.prometheus.path | default "/metrics" | quote }}
+      {{- end }}
+    spec:
+      volumes:
+        - name: tmp-volume
+          emptyDir: {}
+      terminationGracePeriodSeconds: 120
+      serviceAccountName: {{.Values.app_name}}-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+      containers:
+        - name: roboshop-{{ .Values.app_name }}
+          image: raghudevopsb89.azurecr.io/roboshop-{{ .Values.app_name }}:{{ .Values.github_sha }}
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: tmp-volume
+              mountPath: /tmp
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "sleep 60"] # Traffic stops routing here
+          startupProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.app_port }}
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.app_port }}
+            initialDelaySeconds: 15
+            periodSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.app_port }}
+            initialDelaySeconds: 30
+            periodSeconds: 3
+            failureThreshold: 3
+          resources:
+            {{- toYaml .Values.resources | nindent 10 }}
+          envFrom:
+            - secretRef:
+                name: roboshop-{{ .Values.app_name }}
+            - configMapRef:
+                name: roboshop-{{ .Values.app_name }}
+      {{- if and .Values.prometheus .Values.prometheus.exporter .Values.prometheus.exporter.enabled }}
+      - name: nginx-exporter
+        image: {{ .Values.prometheus.exporter.image | default "nginx/nginx-prometheus-exporter:1.4.2" }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+        args:
+          - -nginx.scrape-uri=http://127.0.0.1:{{ .Values.app_port }}/stub_status
+        ports:
+          - name: metrics
+            containerPort: {{ .Values.prometheus.exporter.port | default 9113 }}
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "150m"
+      {{- end }}

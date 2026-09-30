@@ -1,0 +1,28 @@
+app_name: payment
+app_port: 8005
+
+config_map:
+  AMQP_HOST : rabbitmq-dev.rdevopsb89.online
+  AMQP_USER : roboshop
+  AMQP_PASS : RoboShop@1
+  CART_URL : http://roboshop-cart:8003
+  USER_URL : http://roboshop-user:8001
+  PORT : "8005"
+  NEW_RELIC_LICENSE_KEY: b1d3d69660c3e7f58b48d1974fd0776b24a3NRAL
+
+secrets_keys:
+  - NEW_RELIC_LICENSE_KEY
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "200m"
+  limits:
+    memory: "718Mi"
+    cpu: "250m"
+
+principals_list:
+  - "frontend" # nginx.conf proxy_pass /api/payment
+
+istio:
+  mtls_mode: STRICT

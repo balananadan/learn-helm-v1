@@ -1,0 +1,31 @@
+app_name: user
+app_port: 8001
+
+config_map:
+  MONGO_URL : mongodb://mongodb-dev.rdevopsb89.online:27017/users
+  JWT_SECRET : roboshop-secret-key
+  PORT : "8001"
+  #NEW_RELIC_LICENSE_KEY: b1d3d69660c3e7f58b48d1974fd0776b24a3NRAL
+  NEW_RELIC_APP_NAME: user
+
+secrets_keys:
+  - NEW_RELIC_LICENSE_KEY
+
+job:
+  enabled: true
+
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "500m"
+  limits:
+    memory: "750Mi"
+    cpu: "1000m"
+
+principals_list:
+  - "frontend" # nginx.conf proxy_pass /api/user
+  - "payment"  # payment/main.py USER_URL -> /validate/{userId}
+
+istio:
+  mtls_mode: STRICT

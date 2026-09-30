@@ -1,0 +1,27 @@
+app_name: frontend
+app_port: 80
+#service_type: LoadBalancer  # Commented this, Because we moved to traefik ingress
+
+prometheus:
+  enabled: true
+  path: /metrics
+  exporter:
+    enabled: true
+    image: nginx/nginx-prometheus-exporter:1.4.2
+    port: 9113
+  serviceMonitor:
+    enabled: true
+    portName: metrics
+
+ingress:
+  enabled: true
+
+secrets_keys:
+  - dummy
+
+# Mesh edge: Traefik terminates the ingress and has no sidecar, so there is no
+# principal to allow. Authorization is enforced on the services frontend calls.
+istio:
+  allow_unauthenticated: true
+
+principals_list: []

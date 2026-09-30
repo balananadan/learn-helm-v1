@@ -1,0 +1,47 @@
+job:
+  enabled: false
+
+ingress:
+  enabled: false
+
+config_map: {}
+
+service_type: ClusterIP
+
+istio:
+  enabled: true
+  mtls_mode: PERMISSIVE
+  # Mesh-edge workloads only. Clients outside the mesh (the Traefik ingress
+  # controller) have no SPIFFE identity, so no principal rule can match them.
+  allow_unauthenticated: false
+
+# Service accounts allowed to call this service, as `<name>` -> `<name>-sa`.
+# Empty means nothing may call it: the AuthorizationPolicy defaults to deny.
+principals_list: []
+
+prometheus:
+  enabled: true
+  path: /metrics
+  serviceMonitor:
+    enabled: true
+    # ServiceMonitor CR namespace. Existing stack monitors only discover SMs in default.
+    namespace: default
+    interval: 30s
+    scrapeTimeout: 10s
+    # Labels must match Prometheus Operator serviceMonitorSelector.
+    # This cluster uses kube-prometheus-stack release name "pstack".
+    labels:
+      release: pstack
+
+resources:
+  requests:
+    memory: "64Mi"
+    cpu: "100m"
+  limits:
+    memory: "128Mi"
+    cpu: "150m"
+
+
+secrets_keys: []
+
+github_sha: latest

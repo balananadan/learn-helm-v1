@@ -1,0 +1,35 @@
+app_name: shipping
+app_port: 8004
+
+prometheus:
+  path: /actuator/prometheus
+
+config_map:
+  DB_HOST : mysql-dev.rdevopsb89.online
+  DB_USER : shipping
+  #DB_PASS : RoboShop@1
+  #MYSQL_ROOT_PASSWORD : RoboShop@1
+  PORT : "8004"
+
+secrets_keys:
+  - DB_PASS
+  - MYSQL_ROOT_PASSWORD
+
+job:
+  enabled: true
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "600m"
+  limits:
+    memory: "750Mi"
+    cpu: "900m"
+
+principals_list:
+  - "frontend" # nginx.conf proxy_pass /api/shipping
+  - "orders"   # OrderListener.java shipping.url
+
+istio:
+  mtls_mode: STRICT
+

@@ -5,8 +5,8 @@ prometheus:
   path: /actuator/prometheus
 
 config_map:
-  MONGO_URL : mongodb://mongodb-dev.rdevopsb89.online:27017/orders
-  AMQP_HOST : rabbitmq-dev.rdevopsb89.online
+  MONGO_URL : mongodb://mongodb-dev.piple.site:27017/orders
+  AMQP_HOST : rabbitmq-dev.piple.site
   AMQP_USER : roboshop
   #AMQP_PASS : RoboShop@1
   SHIPPING_URL : http://roboshop-shipping:8004

@@ -2,7 +2,7 @@ app_name: cart
 app_port: 8003
 
 config_map:
-  REDIS_HOST : valkey-dev.rdevopsb89.online
+  REDIS_HOST : valkey-dev.piple.site
   CATALOGUE_URL : http://roboshop-catalogue:8002
   PORT : "8003"
   #  NEW_RELIC_LICENSE_KEY: b1d3d69660c3e7f58b48d1974fd0776b24a3NRAL

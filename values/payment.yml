@@ -2,7 +2,7 @@ app_name: payment
 app_port: 8005
 
 config_map:
-  AMQP_HOST : rabbitmq-dev.rdevopsb89.online
+  AMQP_HOST : rabbitmq-dev.piple.site
   AMQP_USER : roboshop
   AMQP_PASS : RoboShop@1
   CART_URL : http://roboshop-cart:8003

@@ -2,7 +2,7 @@ app_name: user
 app_port: 8001
 
 config_map:
-  MONGO_URL : mongodb://mongodb-dev.rdevopsb89.online:27017/users
+  MONGO_URL : mongodb://mongodb-dev.piple.site:27017/users
   JWT_SECRET : roboshop-secret-key
   PORT : "8001"
   #NEW_RELIC_LICENSE_KEY: b1d3d69660c3e7f58b48d1974fd0776b24a3NRAL
